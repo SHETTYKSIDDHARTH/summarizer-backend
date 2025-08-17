@@ -14,6 +14,21 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // In-memory chat sessions
 const chats = {};
 
+// Root endpoint for health check
+app.get("/", (req, res) => {
+  res.json({ 
+    message: "Meeting Transcript Summarizer API",
+    status: "OK", 
+    timestamp: new Date().toISOString(),
+    endpoints: [
+      "GET /api/health",
+      "POST /api/start-session", 
+      "POST /api/summarize",
+      "GET /api/test-gemini"
+    ]
+  });
+});
+
 // Start a new session with transcript
 app.post("/api/start-session", async (req, res) => {
   try {
@@ -232,9 +247,6 @@ const cleanupSessions = () => {
   }
 };
 
-// Run cleanup every hour
-setInterval(cleanupSessions, 60 * 60 * 1000);
-
 // Manual cleanup endpoint
 app.post("/api/cleanup-sessions", (req, res) => {
   const beforeCount = Object.keys(chats).length;
@@ -260,8 +272,20 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: "Endpoint not found" });
+  res.status(404).json({ 
+    error: "Endpoint not found",
+    message: `The endpoint ${req.method} ${req.path} was not found`,
+    available_endpoints: [
+      "GET /",
+      "GET /api/health",
+      "POST /api/start-session", 
+      "POST /api/summarize",
+      "GET /api/test-gemini",
+      "GET /api/sessions",
+      "POST /api/cleanup-sessions"
+    ]
+  });
 });
 
-// ✅ Instead of app.listen, export the app for Vercel
+// For Vercel, we need to export the app as the default export
 export default app;
