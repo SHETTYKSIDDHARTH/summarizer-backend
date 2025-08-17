@@ -263,12 +263,5 @@ app.use((req, res) => {
   res.status(404).json({ error: "Endpoint not found" });
 });
 
-const PORT = process.env.PORT || 5555;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
-  console.log(`Gemini test: http://localhost:${PORT}/api/test-gemini`);
-  
-  console.log("Environment status:");
-  console.log(`  GEMINI_API_KEY: ${process.env.GEMINI_API_KEY ? 'Set' : 'NOT SET'}`);
-});
+// ✅ Instead of app.listen, export the app for Vercel
+export default app;
